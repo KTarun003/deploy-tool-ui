@@ -9,6 +9,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Home from "./pages/Home.jsx";
 import Settings from "./pages/Settings.jsx";
 import Profile from "./pages/Profile.jsx";
+import Navbar from "./components/Navbar.jsx";
 
 const ErrorBoundaryLayout = () => (
     <ErrorBoundary FallbackComponent={<Result
@@ -45,27 +46,29 @@ const App = () => {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
     return (
-        <Layout>
-            <Layout.Content
-                style={{
-                    margin: '24px',
-                    overflow: 'initial',
-                    height:"100%"
-                }}
-            >
-                <div
+            <Layout>
+                <Layout.Content
                     style={{
-                        padding: 10,
-                        textAlign: 'center',
-                        minHeight:280,
-                        background: colorBgContainer,
-                        borderRadius: borderRadiusLG,
+                        margin: '24px',
+                        overflow: 'initial',
+                        height:"100%"
                     }}
                 >
-                    <RouterProvider router={router} />
-                </div>
-            </Layout.Content>
-        </Layout>
+                    <div
+                        style={{
+                            padding: 10,
+                            textAlign: 'center',
+                            minHeight:"90vh",
+                            background: colorBgContainer,
+                            borderRadius: borderRadiusLG,
+                        }}
+                    >
+                        <Navbar />
+                        <RouterProvider router={router} />
+                    </div>
+                </Layout.Content>
+            </Layout>
+
     );
 };
 export default App;

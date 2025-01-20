@@ -3,7 +3,7 @@ import { Breadcrumb, Button, Flex} from 'antd';
 import { useNavigate} from "react-router-dom";
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
-export default function BreadCrumb({name}) {
+export default function BreadCrumb({page,href,name}) {
     const navigate = useNavigate();
 
   return (
@@ -12,7 +12,7 @@ export default function BreadCrumb({name}) {
         <Breadcrumb                
             items={[
                 {
-                    title: <a href="/">Home</a>,
+                    title: <a href={href}>{page}</a>,
                 },
                 {
                     title: name,
