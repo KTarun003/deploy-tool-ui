@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from "react-router-dom";
+import {v4 as uuid} from "uuid"
 import {
     Button,
     Col,
@@ -8,8 +9,10 @@ import {
     InputNumber,
     Row,
     Select,
+    notification
 } from 'antd';
 import BreadCrumb from './../components/BreadCrumb';
+import { invoke } from '@tauri-apps/api/tauri';
 
 const schemes = [
     {"label": "HTTPS",value:"https"},
@@ -23,10 +26,17 @@ const apptypes = [
 
 const Profile = () => {
     let state = useLocation().state;
+    const [api, contextHolder] = notification.useNotification();
+    const openNotificationWithIcon = (type, msg, desc) => {
+        api[type]({
+            message: msg,
+            description:desc,
+        });
+    };
 
     if (state === undefined || state === null)
         state = {
-            id: 0,
+            id: uuid(),
             name: 'New Profile',
             color: '',
             App: {
@@ -54,15 +64,40 @@ const Profile = () => {
 
     const [appType, setAppType] = useState(state.App.AppType);
 
+    const onSubmit = async (values) => {
+        let color = formValues.color
+        if(color === ''){
+           color = await invoke("get_random_color");
+        }
+        const data = {
+            color,...values,
+        }
+        data.id = formValues.id;
+        data.Server.DotnetPath = formValues.Server.DotnetPath;
+        data.Server.NginxPath = formValues.Server.NginxPath;
+        if(values.App.AppType === "Background Worker")
+        {
+            data.App.Scheme = "";
+            data.App.Port = 0;
+        }
+        console.log({data});
+        const res = await invoke("save_profile", {data:JSON.stringify(data, undefined, 2), profileName:data.name})
+        if(res === "Success")
+            openNotificationWithIcon('success', "Success", "Profile is saved Successfully");
+        else
+            openNotificationWithIcon('error',"Error", "Something Went Wrong");
+    }
+
     return (
         <>
+            {contextHolder}
             <BreadCrumb name={formValues.name} page="Profiles" href="/"  />
             <Form
                 form={form}
+                onFinish={onSubmit}
                 initialValues={formValues}
                 layout="horizontal"
                 style={{padding:"2rem"}}
-                onSubmitCapture={(values) => { console.log(form.getFieldsValue()) }}
             >
                 <Row gutter={8}>
                     <Col xl={{ span: 12 }} lg={12} md={24} sm={24} xs={24}>

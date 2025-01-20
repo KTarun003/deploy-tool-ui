@@ -11,7 +11,6 @@ const Home = () =>{
     useEffect(() => {
         async function getData() {
             const data = await invoke("get_profiles");
-            console.log(data)
             setProfiles(data);
         }
         getData();

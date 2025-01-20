@@ -1,9 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::fs;
+use std::{fs};
 use std::fs::{File, ReadDir};
 use std::io::Read;
+use std::path::Path;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -60,16 +61,20 @@ pub struct Server {
     pub nginx_path: String,
 }
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn get_profiles() -> Vec<Profile> {
-    if !std::path::Path::new("C:\\DeployTool\\profiles").exists() {
+fn check_profiles_dir(){
+    if !Path::new("C:\\DeployTool\\profiles").exists() {
         let res = fs::create_dir_all("C:\\DeployTool\\profiles");
         match res{
             Ok(_) => println!("Profiles Folder Created"),
             Err(err) => println!("Create Folder Error: {}",err)
         }
     }
+}
+
+// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+#[tauri::command]
+fn get_profiles() -> Vec<Profile> {
+    check_profiles_dir();
     let entries = fs::read_dir("C:\\DeployTool\\profiles");
     match entries {
         Ok(val) => get_data_from_files(val),    // If result is Ok, return the value
@@ -101,6 +106,18 @@ fn get_data_from_files(entries: ReadDir) -> Vec<Profile> {
     return data;
 }
 
+#[tauri::command]
+fn save_profile(data: String, profile_name: String) -> &'static str {
+    check_profiles_dir();
+    let filepath = format!("{}{}{}", "C:\\DeployTool\\profiles\\", profile_name, ".json");
+    let res = fs::write(filepath, data);
+    return match res{
+        Err(err) => { println!("Write Error: {}", err); return "Error"; },
+        Ok(()) => "Success"
+    }
+}
+
+#[tauri::command]
 fn get_random_color() -> String {
     let mut rng = rand::thread_rng(); // Initialize the random number generator
 
@@ -115,7 +132,7 @@ fn get_random_color() -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_profiles])
+        .invoke_handler(tauri::generate_handler![get_profiles,get_random_color,save_profile])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

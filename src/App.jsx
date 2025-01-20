@@ -10,6 +10,8 @@ import Home from "./pages/Home.jsx";
 import Settings from "./pages/Settings.jsx";
 import Profile from "./pages/Profile.jsx";
 import Navbar from "./components/Navbar.jsx";
+import Services from "./pages/Services.jsx";
+import NginxConfigs from "./pages/NginxConfigs.jsx";
 
 const ErrorBoundaryLayout = () => (
     <ErrorBoundary FallbackComponent={<Result
@@ -36,6 +38,14 @@ const router = createBrowserRouter([
             {
                 path: "/profile",
                 element: <Profile />
+            },
+            {
+                path: "/services",
+                element: <Services />
+            },
+            {
+                path: "/nginx",
+                element: <NginxConfigs />
             },
         ]
     }
